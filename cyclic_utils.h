@@ -3,6 +3,8 @@
  * Basic structs/functions to make organizing cyclic spectrum 
  * data easier.
  */
+#ifndef _CYCLIC_UTILS_H
+#define _CYCLIC_UTILS_H
 
 #include <math.h>
 #include <complex.h>
@@ -193,20 +195,6 @@ int filter_shift(struct filter_freq *out, struct filter_time *in,
 int filter_profile_norm(struct filter_time *f, struct profile_harm *p, 
         int max_harm);
 
-/* Return updated S_0 (profile FT) given shifted CS, H */
-int cyclic_update_profile(struct profile_harm *out, 
-        CS *cs_shifted_pos, CS *cs_shifted_neg,
-        struct filter_freq *h_shift_array_pos,
-        struct filter_freq *h_shift_array_neg);
-
-/* Return updated H (freq-domain filter) given shifted CS, H, S_0 */
-int cyclic_update_filter(struct filter_freq *out, 
-        CS *cs_shifted_pos, CS *cs_shifted_neg, 
-        struct profile_harm *s, 
-        struct filter_freq *h_shift_array_pos,
-        struct filter_freq *h_shift_array_neg,
-        int max_harm);
-
 /* Mean square diff for convergence tests */
 double profile_ms_difference(struct profile_harm *p1, struct profile_harm *p2,
         int max_harm);
@@ -216,3 +204,5 @@ double cyclic_mse(CS *cs_shifted_pos,  CS *cs_shifted_neg,
         struct filter_freq *h_shift_array_pos, 
         struct filter_freq *h_shift_array_neg, 
         int max_harm);
+
+#endif

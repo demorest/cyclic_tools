@@ -7,4 +7,4 @@ clean:
 	rm -rf $(PROGS) *.o
 install: $(PROGS)
 	cp -f $(PROGS) $(LOCAL)/bin
-solve_cyclic: solve_cyclic.o cyclic_utils.o 
+solve_cyclic: solve_cyclic.o cyclic_update.o cyclic_utils.o 
