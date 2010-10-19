@@ -29,6 +29,26 @@ void cyclic_free_cs(CS *d) { fftwf_free(d->data); }
 void cyclic_free_cc(CC *d) { fftwf_free(d->data); }
 void cyclic_free_pc(PC *d) { fftwf_free(d->data); }
 
+void filter_alloc_time(struct filter_time *f) {
+    f->data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex) *
+            f->nlag);
+}
+void filter_alloc_freq(struct filter_freq *f) {
+    f->data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex) *
+            f->nchan);
+}
+void filter_free_time(struct filter_time *f) { fftwf_free(f->data); }
+void filter_free_freq(struct filter_freq *f) { fftwf_free(f->data); }
+
+void profile_alloc_phase(struct profile_phase *f) { 
+    f->data = (float *)fftwf_malloc(sizeof(float) * f->nphase); 
+}
+void profile_alloc_harm(struct profile_harm *f) { 
+    f->data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex) * f->nharm); 
+}
+void profile_free_phase(struct profile_phase *f) { fftwf_free(f->data); }
+void profile_free_harm(struct profile_harm *f) { fftwf_free(f->data); }
+
 /* Load dimension params from fits file */
 int cyclic_load_params(fitsfile *f, struct cyclic_work *w, int *status) {
 
@@ -113,10 +133,10 @@ int cyclic_init_ffts(struct cyclic_work *w) {
     pp.nphase = w->nphase;
     ph.nharm = w->nharm;
 
-    ft.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*ft.nlag);
-    ff.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*ff.nchan);
-    pp.data = (float *)fftwf_malloc(sizeof(float)*pp.nphase);
-    ph.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*ph.nharm);
+    filter_alloc_time(&ft);
+    filter_alloc_freq(&ff);
+    profile_alloc_phase(&pp);
+    profile_alloc_harm(&ph);
 
     /* FFT plans */
     int rv=0;
@@ -163,10 +183,10 @@ int cyclic_init_ffts(struct cyclic_work *w) {
     cyclic_free_cc(&cc);
     cyclic_free_pc(&pc);
 
-    fftwf_free(ft.data);
-    fftwf_free(ff.data);
-    fftwf_free(pp.data);
-    fftwf_free(ph.data);
+    filter_free_time(&ft);
+    filter_free_freq(&ff);
+    profile_free_phase(&pp);
+    profile_free_harm(&ph);
 
     return(rv);
 }
@@ -304,8 +324,7 @@ int filter_shift(struct filter_freq *out, struct filter_time *in,
     struct filter_freq *cur;
     struct filter_time tmp;
     tmp.nlag = in->nlag;
-    tmp.data = (fftwf_complex *)fftwf_malloc(
-            sizeof(fftwf_complex)*tmp.nlag);
+    filter_alloc_time(&tmp);
 
     int ishift, ilag;
     for (ishift=0; ishift<nshift; ishift++) {
@@ -328,7 +347,7 @@ int filter_shift(struct filter_freq *out, struct filter_time *in,
 
     }
 
-    fftwf_free(tmp.data);
+    filter_free_time(&tmp);
     return(0);
 }
 

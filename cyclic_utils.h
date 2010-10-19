@@ -143,6 +143,14 @@ void cyclic_free_ps(PS *d);
 void cyclic_free_cs(CS *d);
 void cyclic_free_cc(CC *d);
 void cyclic_free_pc(PC *d);
+void filter_alloc_time(struct filter_time *f);
+void filter_alloc_freq(struct filter_freq *f);
+void filter_free_time(struct filter_time *f);
+void filter_free_freq(struct filter_freq *f);
+void profile_alloc_phase(struct profile_phase *p);
+void profile_alloc_harm(struct profile_harm *p);
+void profile_free_phase(struct profile_phase *p);
+void profile_free_harm(struct profile_harm *p);
 
 /* Load dimension params from datafile */
 int cyclic_load_params(fitsfile *f, struct cyclic_work *w, int *status);

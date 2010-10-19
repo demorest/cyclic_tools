@@ -168,20 +168,18 @@ int main(int argc, char *argv[]) {
     cyclic_alloc_ps(&raw);
     cyclic_alloc_cs(&cs);
     cyclic_alloc_cs(&cs_neg);
-    ht.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*ht.nlag);
-    ht_new.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*ht.nlag);
-    hf.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*hf.nchan);
-    hf_new.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*hf.nchan);
+    filter_alloc_time(&ht);
+    filter_alloc_time(&ht_new);
+    filter_alloc_freq(&hf);
+    filter_alloc_freq(&hf_new);
     for (i=0; i<w.nharm; i++) {
-        hf_shift_pos[i].data = (fftwf_complex *)fftwf_malloc(
-                sizeof(fftwf_complex)*hf.nchan);
-        hf_shift_neg[i].data = (fftwf_complex *)fftwf_malloc(
-                sizeof(fftwf_complex)*hf.nchan);
+        filter_alloc_freq(&hf_shift_pos[i]);
+        filter_alloc_freq(&hf_shift_neg[i]);
     }
-    pp.data = (float *)fftwf_malloc(sizeof(float)*pp.nphase);
-    pp_new.data = (float *)fftwf_malloc(sizeof(float)*pp.nphase);
-    ph.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*ph.nharm);
-    ph_new.data = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex)*ph.nharm);
+    profile_alloc_phase(&pp);
+    profile_alloc_phase(&pp_new);
+    profile_alloc_harm(&ph);
+    profile_alloc_harm(&ph_new);
 
     /* Check bounds */
     if (max_harm > w.nharm) { max_harm = w.nharm; }
