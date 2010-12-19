@@ -195,10 +195,19 @@ int filter_shift(struct filter_freq *out, struct filter_time *in,
 int filter_profile_norm(struct filter_time *f, struct profile_harm *p, 
         int max_harm);
 
-/* Mean square diff for convergence tests */
+/* Mean square difference functions for the various structs */
 double profile_ms_difference(struct profile_harm *p1, struct profile_harm *p2,
         int max_harm);
 double filter_ms_difference(struct filter_time *f1, struct filter_time *f2);
+double cyclic_ms_difference (CS *cs1, CS *cs2);
+
+/* Output simple text-based versions of various quantities */
+void write_profile(const char *fname, struct profile_phase *p);
+void write_fprofile(const char *fname, struct profile_harm *p);
+void write_filter(const char *fname, struct filter_time *h);
+void write_filter_freq(const char *fname, struct filter_freq *h);
+
+/* Used in original "update" based algorithm */
 double cyclic_mse(CS *cs_shifted_pos,  CS *cs_shifted_neg,
         struct profile_harm *s, 
         struct filter_freq *h_shift_array_pos, 

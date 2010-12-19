@@ -416,6 +416,22 @@ double cyclic_mse(CS *cs_shifted_pos,  CS *cs_shifted_neg,
 
 }
 
+double cyclic_ms_difference (CS *cs1, CS *cs2) {
+    double sum = 0.0;
+    int ih, ic, ip;
+    for (ic=0; ic<cs1->nchan; ic++) {
+        for (ip=0; ip<cs1->npol; ip++) {
+            for (ih=0; ih<cs1->nharm; ih++) {
+                fftwf_complex *d1 = get_cs(cs1, ih, ip, ic);
+                fftwf_complex *d2 = get_cs(cs2, ih, ip, ic);
+                fftwf_complex diff = (*d1) - (*d2);
+                sum += creal(diff*conj(diff));
+            }
+        }
+    }
+    return(sum);
+}
+
 double profile_ms_difference(struct profile_harm *p1, struct profile_harm *p2,
         int max_harm) {
     double sum = 0.0;
@@ -436,3 +452,44 @@ double filter_ms_difference(struct filter_time *f1, struct filter_time *f2) {
     }
     return(sum);
 }
+
+void write_profile(const char *fname, struct profile_phase *p) {
+    FILE *f = fopen(fname, "a");
+    int i;
+    for (i=0; i<p->nphase; i++) {
+        fprintf(f,"%.7e %.7e\n", (double)i/(double)p->nphase, p->data[i]);
+    }
+    fprintf(f,"\n\n");
+    fclose(f);
+}
+
+void write_fprofile(const char *fname, struct profile_harm *p) {
+    FILE *f = fopen(fname, "a");
+    int i;
+    for (i=0; i<p->nharm; i++) {
+        fprintf(f,"%d %.7e %.7e\n", i, creal(p->data[i]), cimag(p->data[i]));
+    }
+    fprintf(f,"\n\n");
+    fclose(f);
+}
+
+void write_filter(const char *fname, struct filter_time *h) {
+    FILE *f = fopen(fname, "a");
+    int i;
+    for (i=0; i<h->nlag; i++) {
+        fprintf(f,"%d %.7e %.7e\n", i, creal(h->data[i]), cimag(h->data[i]));
+    }
+    fprintf(f,"\n\n");
+    fclose(f);
+}
+
+void write_filter_freq(const char *fname, struct filter_freq *h) {
+    FILE *f = fopen(fname, "a");
+    int i;
+    for (i=0; i<h->nchan; i++) {
+        fprintf(f,"%d %.7e %.7e\n", i, creal(h->data[i]), cimag(h->data[i]));
+    }
+    fprintf(f,"\n\n");
+    fclose(f);
+}
+
