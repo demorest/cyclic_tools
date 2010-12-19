@@ -14,6 +14,7 @@
 #include <fitsio.h>
 
 #include "cyclic_utils.h"
+#include "cyclic_update.h"
 
 #define fits_error_check_fatal() do { \
     if (status) { \
