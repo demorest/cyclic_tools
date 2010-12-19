@@ -82,7 +82,7 @@ int model_cyclic(CS *out, struct profile_harm *s0,
         for (ic=0; ic<nc; ic++) {
             fftwf_complex *val = get_cs(out, ih, 0, ic);
             *val = h_shift_pos[ih].data[ic] * conj(h_shift_neg[ih].data[ic])
-                * s0.data[ih];
+                * s0->data[ih];
         }
     }
 

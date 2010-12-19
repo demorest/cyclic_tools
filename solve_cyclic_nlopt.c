@@ -62,7 +62,7 @@ double cyclic_ms_difference_nlopt(int n, double *x,
     }
 
     /* Convert input "x" vector to structs */
-    int i, j;
+    int i;
     data->s0->data[0] = 0.0;
     double *xtmp = x;
     for (i=1; i<data->s0->nharm; i++) { 
@@ -85,7 +85,7 @@ double cyclic_ms_difference_nlopt(int n, double *x,
     }
 
     /* Return mean square diff between model and data */
-    return cyclic_ms_diff(data->cs, data->model_cs);
+    return cyclic_ms_difference(data->cs, data->model_cs);
 }
 
 /* Catch sigint */
