@@ -26,49 +26,6 @@ void usage() {
     printf("solve_cyclic\n");
 }
 
-void write_profile(const char *fname, struct profile_phase *p) {
-    FILE *f = fopen(fname, "a");
-    int i;
-    for (i=0; i<p->nphase; i++) {
-        fprintf(f,"%.7e %.7e\n", (double)i/(double)p->nphase, p->data[i]);
-    }
-    fprintf(f,"\n\n");
-    fclose(f);
-}
-
-void write_fprofile(const char *fname, struct profile_harm *p) {
-    FILE *f = fopen(fname, "a");
-    int i;
-    for (i=0; i<p->nharm; i++) {
-        fprintf(f,"%d %.7e %.7e\n", i, creal(p->data[i]), cimag(p->data[i]));
-    }
-    fprintf(f,"\n\n");
-    fclose(f);
-}
-
-void write_filter(const char *fname, struct filter_time *h) {
-    FILE *f = fopen(fname, "a");
-    int i;
-    for (i=0; i<h->nlag; i++) {
-        fprintf(f,"%d %.7e %.7e\n", i, creal(h->data[i]), cimag(h->data[i]));
-    }
-    fprintf(f,"\n\n");
-    fclose(f);
-}
-
-void write_filter_freq(const char *fname, struct filter_freq *h) {
-    FILE *f = fopen(fname, "a");
-    int i;
-    for (i=0; i<h->nchan; i++) {
-        fprintf(f,"%d %.7e %.7e\n", i, creal(h->data[i]), cimag(h->data[i]));
-    }
-    fprintf(f,"\n\n");
-    fclose(f);
-}
-
-
-
-
 /* Catch sigint */
 int run=1;
 void cc(int sig) { run=0; }
