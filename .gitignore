@@ -1,3 +1,4 @@
 *.o
 .*.swp
 solve_cyclic
+solve_cyclic_nlopt
