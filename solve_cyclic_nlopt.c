@@ -13,6 +13,7 @@
 #include <complex.h>
 #include <fftw3.h>
 #include <fitsio.h>
+#include <nlopt.h>
 
 #include "cyclic_utils.h"
 #include "model_cyclic.h"
@@ -25,7 +26,9 @@
 } while (0)
 
 void usage() {
-    printf("solve_cyclic_nlopt\n");
+    printf("solve_cyclic_nlopt [options] filename\n");
+    printf("Options:\n");
+    printf("  -I sub   Select which subint to analyze\n");
 }
 
 /* Struct for passing the data to nlopt */
@@ -41,7 +44,7 @@ struct cyclic_data {
  * using the functional form that nlopt wants.  Vector "x" contains the
  * parameter values (S0, H).
  */
-double cyclic_ms_difference_nlopt(int n, double *x, 
+double cyclic_ms_difference_nlopt(unsigned n, const double *x, 
         double *grad, void *_data) {
 
     /* Pointer to input data */
@@ -64,7 +67,7 @@ double cyclic_ms_difference_nlopt(int n, double *x,
     /* Convert input "x" vector to structs */
     int i;
     data->s0->data[0] = 0.0;
-    double *xtmp = x;
+    const double *xtmp = x;
     for (i=1; i<data->s0->nharm; i++) { 
         data->s0->data[i] = xtmp[0] + I*xtmp[1];
         xtmp += 2;
@@ -96,10 +99,14 @@ int main(int argc, char *argv[]) {
 
     int opt=0, verb=0;
     int max_harm = 64, max_lag=0;
-    while ((opt=getopt(argc,argv,"hvH:L:"))!=-1) {
+    int isub = 1;
+    while ((opt=getopt(argc,argv,"hvI:H:L:"))!=-1) {
         switch (opt) {
             case 'v':
                 verb++;
+                break;
+            case 'I':
+                isub = atoi(optarg);
                 break;
             case 'H':
                 max_harm = atoi(optarg);
@@ -181,15 +188,14 @@ int main(int argc, char *argv[]) {
     profile_alloc_phase(&pp);
     profile_alloc_harm(&ph);
 
+#if 0  // XXX not implemented yet
     /* Check bounds */
     if (max_harm > w.nharm) { max_harm = w.nharm; }
     if (max_lag > w.nlag/2) { max_lag = w.nlag/2; }
     if (verb) {
         printf("Using max of %d harmonics and %d lags\n", max_harm, max_lag);
     }
-
-    /* Run procedure on subint 0 */
-    int isub = 1;
+#endif
 
     /* Load data */
     cyclic_load_ps(f, &raw, isub, &status);
@@ -203,13 +209,13 @@ int main(int argc, char *argv[]) {
     profile_phase2harm(&pp, &ph, &w);
     ht.data[0] = 1.0;
     for (i=1; i<ht.nlag; i++) { ht.data[i] = 0.0; }
-    filter_profile_norm(&ht, &ph, max_harm);
+    filter_profile_norm(&ht, &ph, w.nharm);
     profile_harm2phase(&ph, &pp, &w);
 
     /* convert input data to cyclic spectrum */
     cyclic_ps2cs(&raw, &cs, &w);
 
-    /* TODO output initial profile? */
+    /* could output initial profile */
 
     /* Fill in data struct for nlopt */
     struct cyclic_data cdata;
@@ -218,7 +224,37 @@ int main(int argc, char *argv[]) {
     cdata.ht = &ht;
     cdata.model_cs = &model_cs;
 
+    /* Set up minimizer */
+    const int dim = 2*(w.nharm-1) + 2*w.nlag; /* number of free params */
+    nlopt_opt op;
+    op = nlopt_create(NLOPT_LN_COBYLA, dim);
+    nlopt_set_min_objective(op, cyclic_ms_difference_nlopt, &cdata);
+    nlopt_set_xtol_rel(op, 1e-4);
+
+    /* Set up initial params */
+    double *x = (double *)malloc(sizeof(double) * dim);
+    double *xtmp = x;
+    for (i=1; i<ph.nharm; i++) { 
+        xtmp[0] = creal(ph.data[i]);
+        xtmp[1] = cimag(ph.data[i]);
+        xtmp += 2;
+    }
+    for (i=0; i<ht.nlag; i++) { 
+        xtmp[0] = creal(ht.data[i]);
+        xtmp[1] = cimag(ht.data[i]);
+        xtmp += 2;
+    }
+
+    /* Run optimization */
+    double min;
+    if (nlopt_optimize(op, x, &min)) {
+        fprintf(stderr, "nlopt_optimize failed\n");
+        exit(1);
+    }
+
+    /* TODO: some kind of output */
 
     /* All done :) */
+    nlopt_destroy(op);
     exit(0);
 }
