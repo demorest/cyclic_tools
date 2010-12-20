@@ -47,6 +47,10 @@ struct cyclic_data {
 double cyclic_ms_difference_nlopt(unsigned n, const double *x, 
         double *grad, void *_data) {
 
+    static int ncalls=0;
+    ncalls++;
+    printf("ncalls=%d\n",ncalls);
+
     /* Pointer to input data */
     struct cyclic_data *data = (struct cyclic_data *)_data;
 
@@ -223,9 +227,11 @@ int main(int argc, char *argv[]) {
     cdata.s0 = &ph;
     cdata.ht = &ht;
     cdata.model_cs = &model_cs;
+    cdata.w = &w;
 
     /* Set up minimizer */
     const int dim = 2*(w.nharm-1) + 2*w.nlag; /* number of free params */
+    printf("number of fit params = %d\n", dim);
     nlopt_opt op;
     op = nlopt_create(NLOPT_LN_COBYLA, dim);
     nlopt_set_min_objective(op, cyclic_ms_difference_nlopt, &cdata);
