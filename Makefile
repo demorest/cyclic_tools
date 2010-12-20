@@ -1,7 +1,7 @@
 PROGS = solve_cyclic solve_cyclic_nlopt
 CC = gcc
 CFLAGS = -g -Wall -O3
-LDLIBS = -lcfitsio -lfftw3f_threads -lfftw3f -lm
+LDLIBS = -lcfitsio -lfftw3f_threads -lfftw3f -lnlopt -lm
 all: $(PROGS)
 clean:
 	rm -rf $(PROGS) *.o
