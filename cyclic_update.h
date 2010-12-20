@@ -24,4 +24,13 @@ int cyclic_update_filter(struct filter_freq *out,
         struct filter_freq *h_shift_array_neg,
         int max_harm);
 
+/* Compute mean squared difference between model and data
+ * to test for convergence.
+ */
+double cyclic_mse(CS *cs_shifted_pos,  CS *cs_shifted_neg,
+        struct profile_harm *s, 
+        struct filter_freq *h_shift_array_pos, 
+        struct filter_freq *h_shift_array_neg, 
+        int max_harm);
+
 #endif

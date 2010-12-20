@@ -374,48 +374,6 @@ int filter_profile_norm(struct filter_time *f, struct profile_harm *p,
 
 }
 
-double cyclic_mse(CS *cs_shifted_pos,  CS *cs_shifted_neg,
-        struct profile_harm *s, 
-        struct filter_freq *h_shift_array_pos, 
-        struct filter_freq *h_shift_array_neg, 
-        int max_harm) {
-
-    /* Only valid for 1-pol data now */
-    if (cs_shifted_pos->npol!=1) { return(-1); }
-
-    if (max_harm<=0) max_harm = cs_shifted_pos->nharm;
-
-    /* Loop sums over both nu and alpha */
-    int iharm, ichan;
-    double sum = 0.0;
-    for (iharm=1; iharm<max_harm; iharm++) {
-
-        fftwf_complex sa = s->data[iharm];
-
-        for (ichan=0; ichan<cs_shifted_pos->nchan; ichan++) {
-
-            /* Positive alpha */
-            fftwf_complex *cs = get_cs(cs_shifted_pos,iharm,0,ichan);
-            fftwf_complex h  = h_shift_array_pos[0].data[ichan];
-            fftwf_complex ha = h_shift_array_pos[iharm].data[ichan];
-
-            fftwf_complex diff = (*cs) - h*conj(ha)*sa;
-            sum += creal(diff * conj(diff));
-
-            /* negative alpha */
-            cs = get_cs(cs_shifted_neg,iharm,0,ichan);
-            h  = h_shift_array_neg[0].data[ichan];
-            ha = h_shift_array_neg[iharm].data[ichan];
-
-            diff = conj(*cs) - h*conj(ha)*conj(sa);
-            sum += creal(diff * conj(diff));
-        }
-    }
-
-    return(sum);
-
-}
-
 double cyclic_ms_difference (CS *cs1, CS *cs2) {
     double sum = 0.0;
     int ih, ic, ip;

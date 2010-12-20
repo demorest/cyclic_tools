@@ -207,11 +207,4 @@ void write_fprofile(const char *fname, struct profile_harm *p);
 void write_filter(const char *fname, struct filter_time *h);
 void write_filter_freq(const char *fname, struct filter_freq *h);
 
-/* Used in original "update" based algorithm */
-double cyclic_mse(CS *cs_shifted_pos,  CS *cs_shifted_neg,
-        struct profile_harm *s, 
-        struct filter_freq *h_shift_array_pos, 
-        struct filter_freq *h_shift_array_neg, 
-        int max_harm);
-
 #endif
