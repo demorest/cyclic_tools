@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <time.h>
+#include <sys/time.h>
 #include <signal.h>
 #include <getopt.h>
 #include <math.h>
@@ -31,6 +33,14 @@ void usage() {
     printf("  -I sub   Select which subint to analyze\n");
 }
 
+/* Functions for timing */
+double cur_time_in_sec() {
+    struct timeval tv;
+    int rv=0;
+    if ((rv=gettimeofday(&tv,NULL))!=0) { return(0); }
+    return (tv.tv_sec+tv.tv_usec*1e-6);
+}
+
 /* Struct for passing the data to nlopt */
 struct cyclic_data {
     struct cyclic_spectrum *cs; /* The actual data */
@@ -48,8 +58,9 @@ double cyclic_ms_difference_nlopt(unsigned n, const double *x,
         double *grad, void *_data) {
 
     static int ncalls=0;
+    static double tot_time = 0.0;
+    double t0 = cur_time_in_sec();
     ncalls++;
-    printf("ncalls=%d\n",ncalls);
 
     /* Pointer to input data */
     struct cyclic_data *data = (struct cyclic_data *)_data;
@@ -92,7 +103,15 @@ double cyclic_ms_difference_nlopt(unsigned n, const double *x,
     }
 
     /* Return mean square diff between model and data */
-    return cyclic_ms_difference(data->cs, data->model_cs);
+    double m = cyclic_ms_difference(data->cs, data->model_cs);
+
+    /* Print timing info */
+    double t1 = cur_time_in_sec();
+    tot_time += t1-t0;
+    printf("Total ncalls=%d, avg %.2e sec/call\n", 
+            ncalls, tot_time/(double)ncalls);
+
+    return(m);
 }
 
 /* Catch sigint */
